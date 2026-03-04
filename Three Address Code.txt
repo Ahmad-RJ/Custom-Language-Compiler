@@ -1,0 +1,21 @@
+_a = 10
+_b = 5
+if _a > _b goto L3
+goto L4
+L3:
+t1 = _b * 2
+t2 = _a + t1
+_c = t2
+:
+if _c >= 20 goto L6
+goto L5
+L6:
+t3 = _c + 1
+_c = t3
+goto 
+L5:
+goto L5
+L4:
+t4 = _b + 1
+_c = t4
+L5:
