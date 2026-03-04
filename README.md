@@ -1,2 +1,2 @@
 # Custom-Language-Compiler
-I developed a custom language compiler using basic C++.
+To run this project, you can copy the Source.cpp and have Input Code.txt in the same directory.
