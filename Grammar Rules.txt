@@ -1,0 +1,32 @@
+Start → {tvar = 0, mvar = 0, rvar = 0; Stmt.start = newlabel(); Stmt.end = newlabel();} Stmt
+
+Stmt → {WhileStmt.start = Stmt.start; WhileStmt.end = Stmt.end; gen(WhileStmt.start ":")} WhileStmt {gen(WhileStmt.end ":")} | Expr :: | {IfStmt.start = Stmt.start; IfStmt.end = Stmt.end} IfStmt | {CompStmt.end = Stmt.end} CompStmt {gen('goto ' Stmt.end)} 
+
+WhileStmt → while ( {Rvalue.true = newlabel(); Rvalue.false = WhileStmt.end()} Rvalue) {gen(Rvalue.true ":"); Stmt.end = WhileStmt.start} Stmt {gen ("goto" WhileStmt.start)}
+
+IfStmt → Agar ( {Rvalue.true = newlabel(); Rvalue.false = newlabel(); Stmt.end = IfStmt.end} Rvalue) Stmt {gen("goto" Stmt.end); gen(Rvalue.false ":");} ElsePart
+
+ElsePart → Wargarna Stmt | ^ 
+
+CompStmt → {CompStmt.val = StmtList.val} {StmtList}
+StmtList → {StmtList.val = StmtList'.val} StmtList' 
+StmtList' → {Stmt.val = StmtList'.val} Stmt Stmtlist' | ^ 
+
+RelOp → == {RelOp.val = "=="} | < {RelOp.val = "<"} | > {RelOp.val = ">"} | <= {RelOp.val = "<="} | >= {RelOp.val = ">="} | <> {RelOp.val = "!="}
+
+Expr → identifier := Mag {gen(top.get(identifier.lexeme) "=" Mag.val)} | ^ 
+
+Rvalue → Mag {rvar = Mag.val; Rvalue'.true = Rvalue.true ; Rvalue'.false = Rvalue.false} Rvalue' 
+Rvalue' → RelOp Mag {Rvalue'.temp = newTemp; gen(Rvalue'.temp "=" rval RelOp.op Mag.val); rval = Mag.val gen("if" Rvalue'.temp " == 0 goto" Rvalue'.false);} Rvalue' | ^ {gen("goto" Rvalue'.true)}
+
+Mag → Term {mvar = Term.val} Mag' {Mag.val = mvar}
+Mag' → + Term {Mag'.temp = newTemp(); Mag'.temp = mvar + Term.val; gen(Mag'.temp "=" mvar "+" Term.val); mvar = Mag'.temp} Mag' 
+	| - Term {Mag'.temp = newTemp(); Mag'.temp = mvar - Term.val; gen(Mag'.temp "=" mvar "-" Term.val); mvar = Mag'.temp} Mag' 
+	| ^
+
+Term → Factor {tvar = Factor.val} Term' {Term.val = tvar}
+Term' → * Factor {Term'.temp = newTemp(); Term'.temp = tvar * Factor.val; gen(Term'.temp "=" tvar "*" Factor.val); tvar = Term'.temp} Term' 
+	| / Factor {Term'.temp = newTemp(); Term'.temp = tvar / Factor.val; gen(Term'.temp "=" tvar "/" Factor.val); tvar = Term'.temp} Term' 
+	| ^
+
+Factor → (Mag) {Factor.val = Mag.val} | identifier {Factor.val = top.get(identifier.lexeme)} | number {Factor.val = top.get(number.lexeme)}

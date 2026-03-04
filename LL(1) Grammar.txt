@@ -1,0 +1,17 @@
+Start → Stmt
+Stmt → WhileStmt | Expr :: | IfStmt | CompStmt
+WhileStmt → while (Rvalue) Stmt 
+IfStmt → Agar (Rvalue) Stmt ElsePart 
+ElsePart → Wargarna Stmt | ^ 
+CompStmt → {StmtList} 
+StmtList → Stmt StmtList' 
+StrutList' → Stmt Stmtlist' | ^
+RelOp → == | < | > | <= | >= != | <>
+Expr → identifier := Mag | ^ 
+Rvalue → Mag Rvalue' 
+Rvalue' → RelOp Mag Rvalue' | ^ 
+Mag → Term Mag' 
+Mag' → + Term Mag' | - Term Mag' | ^
+Term → Factor Term'
+Term' → * Factor Term' | / Factor Term' | ^
+Factor → (Mag) | identifier | number
